@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const LocalStrategy = require('passport-local').Strategy;
 const users = [{
-    _id = 1,
+    _id: 1,
     username: "adm",
     password: "$2a$06$HT.EmXYUUhNo3UQMl9APmeC0SwoGsx7FtMoAWdzGicZJ4wR1J8alW",
     email: "contato@luiztools.com.br"
@@ -10,11 +10,11 @@ const users = [{
 module.exports = function (passport) {
 
     function findUser(username) {
-        return users.findOne(user => user.username === username);
+        return users.find(user => user.username === username);
     }
 
     function findUserById(id) {
-        return users.findOne(user => user._id === id);
+        return users.find(user => user._id === id);
     }
 
     passport.serializeUser((user, done) => {

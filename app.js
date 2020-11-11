@@ -3,10 +3,17 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const passport = require('passport');
+const session = require('express-session');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const loginRouter = require('./routes/login');
+
+function authenticationMiddleware(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.redirect('/login?fail=true');
+}
 
 const app = express();
 
@@ -20,10 +27,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/login', loginRouter);
+require('./auth')(passport);
+app.use(session({  
+  secret: '123',//configure um segredo seu aqui,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 30 * 60 * 1000 }//30min
+}))
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use('/users', usersRouter);
+app.use('/login', loginRouter);
+app.use('/users', authenticationMiddleware, usersRouter);
+app.use('/', authenticationMiddleware,  indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
